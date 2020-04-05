@@ -88,4 +88,32 @@ all_df = pd.get_dummies(all_df)
 all_df = pd.merge(
     all_df, matrix_df[["embarked_0","embarked_1","embarked_2","embarked_99"]],
     left_index=True, right_index=True)
-print(all_df)
+# print(all_df)
+train_df = all_df[all_df.index.isin(train_index)]
+test_df = all_df[all_df.index.isin(test_index)]
+# print(train_df.head())
+
+# 17. model 뽑아 내기
+x_data = train_df.values
+y_data = y_train_df.values
+
+from sklearn.linear_model import LogisticRegression
+cls = LogisticRegression()
+cls.fit(x_data,y_data)
+cls.intercept_
+cls.coef_
+cls.predict(test_df.values)
+
+
+test_df.index
+x_test = test_df.values
+y_test =cls.predict(x_test)
+
+result = np.concatenate( (test_index.values.reshape(-1,1),
+                 cls.predict(x_test).reshape(-1,1)  ) , axis=1)
+
+df_submssion =pd.DataFrame(result, columns=["PassengerId","Survived"])
+print(df_submssion)
+
+# 18. csv 파일 생성
+df_submssion.to_csv("submission_result.csv",index=False)
